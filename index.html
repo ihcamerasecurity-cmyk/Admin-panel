@@ -1,1 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IP GLOBAL CAMERA SECURITY • Premium Surveillance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Poppins:wght@500;600&amp;display=swap');
+        
+        :root { --primary: #06b67f; }
+        
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Poppins', 'Inter', sans-serif; font-weight: 600; }
 
+        .premium-card {
+            transition: all 0.4s cubic-bezier(0.23, 1.0, 0.32, 1);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .premium-card:hover {
+            transform: translateY(-10px) scale(1.005);
+            box-shadow: 0 30px 70px -15px rgb(0 0 0 / 0.4);
+        }
+
+        .section-header { font-size: 1.25rem; letter-spacing: -.03em; font-weight: 700; }
+
+        .camera-card { overflow: hidden; border-radius: 20px; background: #18181b; border: 1px solid #27272a; }
+        .camera-card img { transition: transform 0.7s cubic-bezier(0.23, 1.0, 0.32, 1); }
+        .camera-card:hover img { transform: scale(1.06); }
+
+        .modal { animation: modalPopIn 0.28s cubic-bezier(0.23, 1.0, 0.32, 1); }
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: translateY(50px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .product-image { aspect-ratio: 16 / 9.5; object-fit: cover; background: #111; }
+
+        .tilt-card { transition: transform 0.1s ease-out; will-change: transform; }
+
+        .premium-input {
+            background: #18181b; border: 1px solid #3f3f46; transition: all 0.2s ease;
+        }
+        .premium-input:focus {
+            border-color: #06b67f; box-shadow: 0 0 0 3px rgba(6, 182, 127, 0.12); outline: none;
+        }
+
+        .security-gradient { background: linear-gradient(145deg, #18181b 0%, #27272a 100%); }
+
+        .auto-scroll-container { scrollbar-width: none; }
+        .auto-scroll-container::-webkit-scrollbar { display: none; }
+
+        .app-container {
+            max-width: 460px; margin: 0 auto; min-height: 100dvh;
+            box-shadow: 0 0 0 1px #27272a; background: #09090b;
+        }
+        @media (min-width: 768px) {
+            .app-container { max-width: 100%; box-shadow: none; border: none; }
+        }
+
+        .segmented-control { background: #18181b; border: 1px solid #27272a; }
+        .segment-btn { transition: all 0.2s cubic-bezier(0.23, 1.0, 0.32, 1); }
+        .segment-btn.active { background: #06b67f; color: white; box-shadow: 0 4px 12px -2px rgb(6 182 127 / 0.4); }
+
+        .search-input {
+            background: #18181b; border: 1px solid #3f3f46;
+        }
+        .search-input:focus {
+            border-color: #06b67f; box-shadow: 0 0 0 3px rgba(6, 182, 127, 0.1);
+        }
+
+        .gallery-modal { animation: fadeInScale 0.2s ease; }
+        @keyframes fadeInScale { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+
+        .zoom-container { overflow: hidden; }
+        .zoom-image { transition: transform 0.2s ease; cursor: zoom-in; }
+        .zoom-image.zoomed { cursor: zoom-out; }
+
+        .skeleton {
+            background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite linear;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .professional-btn {
+            transition: all 0.2s cubic-bezier(0.23, 1.0, 0.32, 1);
+        }
+        .professional-btn:active {
+            transform: scale(0.985);
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <div class="app-container mx-auto min-h-screen relative overflow-hidden">
+        
+        <!-- Header (No status bar) -->
+        <div class="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur-2xl border-b border-zinc-800">
+            <div class="px-5 pt-4 pb-3 flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-10 h-10 rounded-2xl overflow-hidden border border-zinc-700">
+                        <img src="https://i.ibb.co/RLJq8Bf/IMG-20260619-165257-293.png" alt="IP GLOBAL Logo" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <div class="font-display text-[21px] tracking-tighter font-semibold">IP GLOBAL</div>
+                        <div class="text-[9px] text-emerald-400 -mt-1 tracking-[1.5px]">CAMERA SECURITY</div>
+                    </div>
+                </div>
+                
+                <!-- Top Trace Order Button -->
+                <div class="flex items-center gap-x-2">
+                    <button onclick="openTraceModal()" 
+                            class="flex items-center gap-x-1.5 px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 transition-colors text-xs font-medium rounded-3xl border border-zinc-700 professional-btn">
+                        <i class="fa-solid fa-search-location text-emerald-400"></i>
+                        <span class="hidden sm:inline">Trace Order</span>
+                    </button>
+                    
+                    <div onclick="refreshLocation()" class="flex items-center gap-x-2 bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-3xl border border-zinc-800 cursor-pointer">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <div class="text-right"><div id="location-text" class="text-xs font-medium tracking-tight">Detecting...</div></div>
+                        <i class="fa-solid fa-location-arrow text-emerald-400 ml-1 text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="px-5 pt-4">
+            <div class="relative">
+                <input id="search-input" type="text" placeholder="Search cameras by name or model..." 
+                       oninput="filterProducts()" 
+                       class="search-input w-full pl-11 pr-4 py-3.5 rounded-3xl text-sm placeholder:text-zinc-500 border border-zinc-700">
+                <i class="fa-solid fa-search absolute left-4 top-4 text-zinc-400"></i>
+            </div>
+        </div>
+
+        <!-- Top Segmented Control -->
+        <div class="px-5 pt-4">
+            <div class="segmented-control flex rounded-3xl p-1">
+                <div onclick="switchView('buy')" id="view-buy"
+                     class="segment-btn active flex-1 text-center py-[10px] text-sm font-semibold rounded-[20px] cursor-pointer">
+                    Buy Camera
+                </div>
+                <div onclick="switchView('installment')" id="view-installment"
+                     class="segment-btn flex-1 text-center py-[10px] text-sm font-semibold rounded-[20px] cursor-pointer text-zinc-400">
+                    Installment Camera
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="px-5 pt-5 pb-3">
+            <div class="security-gradient rounded-3xl p-6 border border-zinc-800">
+                <div class="flex justify-between items-start">
+                    <div class="max-w-[210px]">
+                        <div class="uppercase tracking-[2.5px] text-emerald-400 text-[10px] font-semibold mb-1">EST. 2018 • PAKISTAN</div>
+                        <h1 class="font-display text-[29px] leading-[1.05] tracking-[-1.5px]">Premium<br>Surveillance<br>Solutions</h1>
+                        <p class="mt-3 text-sm text-zinc-400">Trusted by 850+ homes &amp; businesses</p>
+                    </div>
+                    <div>
+                        <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-700">
+                            <i class="fa-solid fa-shield-halved text-3xl text-emerald-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section with Loading Skeleton -->
+        <div class="px-5">
+            <div class="flex items-end justify-between mb-3.5 px-0.5">
+                <div>
+                    <div class="font-display section-header tracking-tight" id="products-title">Our Premium Cameras</div>
+                    <div class="text-xs text-zinc-500">3 Year Warranty • Professional Grade</div>
+                </div>
+            </div>
+
+            <!-- Skeleton Loader (shown until products load) -->
+            <div id="products-skeleton" class="grid grid-cols-1 gap-4 pb-1">
+                <div class="camera-card p-0 overflow-hidden">
+                    <div class="skeleton h-[170px] w-full"></div>
+                    <div class="p-4 space-y-3">
+                        <div class="skeleton h-4 w-3/4 rounded"></div>
+                        <div class="skeleton h-3 w-1/2 rounded"></div>
+                        <div class="flex justify-between">
+                            <div class="skeleton h-5 w-16 rounded"></div>
+                            <div class="skeleton h-8 w-20 rounded-2xl"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="camera-card p-0 overflow-hidden">
+                    <div class="skeleton h-[170px] w-full"></div>
+                    <div class="p-4 space-y-3">
+                        <div class="skeleton h-4 w-3/4 rounded"></div>
+                        <div class="skeleton h-3 w-1/2 rounded"></div>
+                        <div class="flex justify-between">
+                            <div class="skeleton h-5 w-16 rounded"></div>
+                            <div class="skeleton h-8 w-20 rounded-2xl"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="products-grid" class="grid grid-cols-1 gap-4 pb-1 hidden">
+                <!-- Populated dynamically via JS -->
+            </div>
+            
+            <div id="no-products" class="hidden py-8 text-center">
+                <i class="fa-solid fa-video text-4xl text-zinc-700 mb-3"></i>
+                <p class="text-sm text-zinc-400">No cameras found.</p>
+            </div>
+        </div>
+
+        <!-- Special Highlights -->
+        <div class="mt-7 px-5">
+            <div class="flex items-center justify-between mb-2.5 px-1">
+                <div class="font-display text-base tracking-tight">Special Highlights</div>
+                <div class="text-[10px] text-emerald-400">Tap to view</div>
+            </div>
+            
+            <div id="promo-scroll-container" class="auto-scroll-container flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Bottom Trace Order Button -->
+        <div class="px-5 mt-2 mb-6">
+            <button onclick="openTraceModal()" 
+                    class="w-full flex items-center justify-center gap-x-2 py-3.5 bg-zinc-900 border border-zinc-700 hover:border-emerald-600 active:bg-zinc-800 rounded-3xl text-sm font-semibold professional-btn transition-colors">
+                <i class="fa-solid fa-search-location text-emerald-400"></i>
+                <span>Trace Your Order</span>
+            </button>
+            <div class="text-center text-[10px] text-zinc-500 mt-1.5">Enter Order ID to check status &amp; delivery</div>
+        </div>
+
+        <!-- How to Order -->
+        <div class="px-5">
+            <div class="font-display section-header tracking-tight mb-3 px-1">How to Order</div>
+            <div class="space-y-[9px]">
+                <div class="flex gap-4 bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div class="w-7 h-7 flex-shrink-0 rounded-2xl bg-emerald-900/30 flex items-center justify-center text-emerald-400 text-xs font-bold">1</div>
+                    <div class="flex-1 text-sm"><div class="font-semibold">Choose Your Camera</div><div class="text-xs text-zinc-400 mt-px">Browse and tap Buy Now</div></div>
+                </div>
+                <div class="flex gap-4 bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div class="w-7 h-7 flex-shrink-0 rounded-2xl bg-emerald-900/30 flex items-center justify-center text-emerald-400 text-xs font-bold">2</div>
+                    <div class="flex-1 text-sm"><div class="font-semibold">Fill Details &amp; Choose Payment</div><div class="text-xs text-zinc-400 mt-px">Name, address, phone + installment</div></div>
+                </div>
+                <div class="flex gap-4 bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+                    <div class="w-7 h-7 flex-shrink-0 rounded-2xl bg-emerald-900/30 flex items-center justify-center text-emerald-400 text-xs font-bold">3</div>
+                    <div class="flex-1 text-sm"><div class="font-semibold">Confirm via WhatsApp</div><div class="text-xs text-zinc-400 mt-px">Instantly sent to our team</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us -->
+        <div class="px-5 mt-7">
+            <div class="font-display section-header tracking-tight mb-3 px-1">About IP GLOBAL</div>
+            <div class="glass rounded-3xl p-5 border border-zinc-800 text-sm leading-relaxed">
+                <p class="text-zinc-300">Pakistan’s most trusted provider of premium CCTV and surveillance solutions.</p>
+                <div class="grid grid-cols-3 gap-3 mt-5 text-center">
+                    <div><div class="text-2xl font-semibold text-emerald-400">850+</div><div class="text-[10px] text-zinc-400 tracking-wider">INSTALLATIONS</div></div>
+                    <div><div class="text-2xl font-semibold text-emerald-400">5</div><div class="text-[10px] text-zinc-400 tracking-wider">CITIES</div></div>
+                    <div><div class="text-2xl font-semibold text-emerald-400">24/7</div><div class="text-[10px] text-zinc-400 tracking-wider">SUPPORT</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy -->
+        <div class="px-5 mt-6 pb-16">
+            <div class="font-display section-header tracking-tight mb-3 px-1">Our Policy</div>
+            <div class="text-xs space-y-2 text-zinc-400 bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="flex gap-2"><i class="fa-solid fa-truck mt-0.5 text-emerald-400 w-3.5"></i> <span><strong class="text-zinc-300">Delivery:</strong> Customer pays delivery charges.</span></div>
+                <div class="flex gap-2"><i class="fa-solid fa-shield-halved mt-0.5 text-emerald-400 w-3.5"></i> <span><strong class="text-zinc-300">Warranty:</strong> Official manufacturer warranty.</span></div>
+                <div class="flex gap-2"><i class="fa-solid fa-undo mt-0.5 text-emerald-400 w-3.5"></i> <span><strong class="text-zinc-300">Returns:</strong> 7-day replacement for defects.</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Modal -->
+    <div id="buy-modal" onclick="if (event.target.id === 'buy-modal') closeBuyModal()" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-end md:items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="w-full md:w-[440px] bg-zinc-900 rounded-t-3xl md:rounded-3xl border border-zinc-700 md:my-8 modal">
+            <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-zinc-800">
+                <div>
+                    <div class="font-display text-xl" id="modal-main-title">Complete Your Order</div>
+                    <div id="modal-product-name" class="text-emerald-400 text-sm font-medium"></div>
+                </div>
+                <button onclick="closeBuyModal()" class="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-white active:bg-zinc-800 rounded-2xl">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-5 max-h-[68dvh] overflow-y-auto">
+                <div id="modal-product-summary" class="flex gap-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-3"></div>
+                
+                <div class="space-y-4">
+                    <div><label class="text-xs font-medium tracking-wider text-zinc-400 block mb-1.5">FULL NAME</label>
+                        <input id="order-name" type="text" placeholder="Enter your full name" class="premium-input w-full px-4 py-3.5 rounded-2xl text-sm"></div>
+                    
+                    <div><label class="text-xs font-medium tracking-wider text-zinc-400 block mb-1.5">COMPLETE ADDRESS</label>
+                        <textarea id="order-address" rows="2" placeholder="House #42, Street 7, Phase 5, DHA, Lahore" class="premium-input w-full px-4 py-3 rounded-2xl text-sm resize-y"></textarea></div>
+                    
+                    <div><label class="text-xs font-medium tracking-wider text-zinc-400 block mb-1.5">PHONE NUMBER</label>
+                        <div class="flex"><div class="px-4 flex items-center bg-zinc-950 border border-r-0 border-zinc-700 rounded-l-2xl text-sm">+92</div>
+                        <input id="order-phone" type="tel" value="300" placeholder="3001234567" class="premium-input flex-1 px-4 py-3.5 rounded-r-2xl text-sm"></div></div>
+                    
+                    <div><label class="text-xs font-medium tracking-wider text-zinc-400 block mb-1.5">QUANTITY</label>
+                        <div class="flex items-center gap-x-3">
+                            <button onclick="changeQty(-1)" class="w-10 h-10 flex-shrink-0 bg-zinc-800 active:bg-zinc-700 border border-zinc-700 rounded-2xl flex items-center justify-center text-xl font-light">−</button>
+                            <input id="order-qty" type="number" value="1" min="1" oninput="updateModalTotalPrice()" class="premium-input w-20 text-center px-3 py-3 rounded-2xl text-lg font-semibold">
+                            <button onclick="changeQty(1)" class="w-10 h-10 flex-shrink-0 bg-zinc-800 active:bg-zinc-700 border border-zinc-700 rounded-2xl flex items-center justify-center text-xl font-light">+</button>
+                            <div class="flex-1 text-right"><div id="modal-total-price" class="font-display text-2xl font-semibold text-emerald-400">PKR 0</div><div class="text-[10px] text-zinc-500 -mt-1">Total Payable</div></div>
+                        </div>
+                    </div>
+                    
+                    <div><label class="text-xs font-medium tracking-wider text-zinc-400 block mb-1.5">ADDITIONAL NOTES</label>
+                        <textarea id="order-notes" rows="2" placeholder="Need installation..." class="premium-input w-full px-4 py-3 rounded-2xl text-sm resize-y"></textarea></div>
+                    
+                    <div id="installment-section">
+                        <label class="text-xs font-medium tracking-wider text-emerald-400 block mb-2">PAYMENT OPTION</label>
+                        <div class="space-y-2" id="installment-options"></div>
+                        <div id="no-plans-note" class="hidden mt-1 text-xs text-center text-zinc-400 bg-zinc-950 border border-zinc-800 rounded-2xl py-2">
+                            Installment plans coming soon.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-5 pt-3 border-t border-zinc-800 bg-zinc-950 rounded-b-3xl">
+                <button onclick="submitOrder()" class="w-full py-4 bg-emerald-500 active:bg-emerald-600 transition-all text-white font-semibold tracking-wider rounded-2xl flex items-center justify-center gap-x-2 text-sm shadow-lg shadow-emerald-500/30">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span id="submit-btn-text">ORDER COMPLETE — SEND TO WHATSAPP</span>
+                </button>
+                <div class="text-center text-[10px] text-zinc-500 mt-2.5">Thanks for trust us</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Gallery Modal -->
+    <div id="gallery-modal" onclick="if (event.target.id === 'gallery-modal') closeGalleryModal()" class="hidden fixed inset-0 bg-black/95 z-[150] flex items-center justify-center p-4">
+        <div onclick="event.stopImmediatePropagation()" class="w-full max-w-[420px] bg-zinc-900 rounded-3xl overflow-hidden modal border border-zinc-700">
+            <div class="flex justify-between items-center px-5 pt-4 pb-2">
+                <div class="font-semibold">All Photos</div>
+                <button onclick="closeGalleryModal()" class="text-2xl text-zinc-400 hover:text-white">&times;</button>
+            </div>
+            
+            <div class="px-5 pb-4">
+                <div class="zoom-container bg-black rounded-2xl overflow-hidden border border-zinc-700 mb-4" style="aspect-ratio: 16/10;">
+                    <img id="gallery-main-image" class="zoom-image w-full h-full object-contain" style="transform: scale(1);">
+                </div>
+                
+                <div class="flex justify-center gap-x-4 mb-4">
+                    <button onclick="zoomImage(-0.2)" class="w-10 h-10 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl active:bg-zinc-700">-</button>
+                    <button onclick="resetZoom()" class="px-5 text-xs font-medium bg-zinc-800 rounded-2xl flex items-center active:bg-zinc-700">RESET</button>
+                    <button onclick="zoomImage(0.2)" class="w-10 h-10 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl active:bg-zinc-700">+</button>
+                </div>
+                
+                <div id="gallery-thumbnails" class="flex gap-2 overflow-x-auto pb-2 snap-x">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trace Order Modal -->
+    <div id="trace-modal" onclick="if (event.target.id === 'trace-modal') closeTraceModal()" class="hidden fixed inset-0 bg-black/90 z-[160] flex items-end md:items-center justify-center p-4">
+        <div onclick="event.stopImmediatePropagation()" class="w-full md:w-[400px] bg-zinc-900 rounded-t-3xl md:rounded-3xl border border-zinc-700 modal">
+            <div class="px-5 pt-5 pb-3 flex justify-between border-b border-zinc-800">
+                <div class="font-display text-xl">Trace Your Order</div>
+                <button onclick="closeTraceModal()" class="text-2xl text-zinc-400">&times;</button>
+            </div>
+            
+            <div class="p-5">
+                <div class="text-xs text-zinc-400 mb-2">Enter your Order ID (e.g. IPG-ABC123)</div>
+                <div class="flex gap-2">
+                    <input id="trace-order-id" type="text" placeholder="IPG-XXXXXX" class="premium-input flex-1 px-4 py-3 rounded-2xl text-sm">
+                    <button onclick="traceOrder()" class="px-6 bg-emerald-500 active:bg-emerald-600 rounded-2xl text-sm font-semibold">TRACK</button>
+                </div>
+                
+                <div id="trace-result" class="hidden mt-5 border border-zinc-700 rounded-2xl p-4 text-sm">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcement-modal" onclick="if (event.target.id === 'announcement-modal') {}" class="hidden fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4">
+        <div onclick="event.stopImmediatePropagation()" class="w-full max-w-[400px] bg-zinc-900 border border-zinc-700 rounded-3xl overflow-hidden modal">
+            <div id="announcement-image-container" class="relative">
+                <img id="announcement-image" class="w-full aspect-video object-cover">
+                <div class="absolute top-4 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded-2xl flex items-center"><i class="fa-solid fa-bullhorn mr-1.5"></i><span>ANNOUNCEMENT</span></div>
+            </div>
+            <div class="p-5">
+                <div id="announcement-title" class="font-display text-2xl tracking-tighter"></div>
+                <div id="announcement-desc" class="mt-3 text-sm text-zinc-300 leading-relaxed max-h-[140px] overflow-y-auto"></div>
+                <div class="mt-5 flex items-center justify-between">
+                    <div id="announcement-timer" class="text-xs px-4 py-2 bg-zinc-800 rounded-2xl flex items-center text-emerald-400 font-medium">
+                        <i class="fa-solid fa-clock mr-2"></i> Please wait <span id="timer-seconds">10</span>s
+                    </div>
+                    <button onclick="closeAnnouncement()" id="announcement-close-btn" class="hidden px-6 py-2.5 text-sm font-semibold bg-white text-black rounded-2xl">CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtttefvCiiF4tBszalKhjwJjd5xTffdlw",
+            authDomain: "website-f1e6f.firebaseapp.com",
+            databaseURL: "https://website-f1e6f-default-rtdb.firebaseio.com",
+            projectId: "website-f1e6f",
+            storageBucket: "website-f1e6f.firebasestorage.app",
+            messagingSenderId: "897581206128",
+            appId: "1:897581206128:web:fc43551807239f35b042b5"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentProducts = [];
+        let currentInstallmentPlans = [];
+        let selectedProduct = null;
+        let currentView = 'buy';
+        let currentLocation = "Lahore, Punjab";
+        let currentGalleryImages = [];
+        let currentZoomLevel = 1;
+
+        function initTailwind() {
+            tailwind.config = { theme: { extend: { fontFamily: { display: ['Poppins', 'system-ui', 'sans-serif'] } } } };
+        }
+
+        function filterProducts() {
+            const term = document.getElementById('search-input').value.toLowerCase().trim();
+            const grid = document.getElementById('products-grid');
+            const cards = grid.querySelectorAll('.camera-card');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const title = card.querySelector('.font-semibold')?.textContent.toLowerCase() || '';
+                const model = card.querySelector('.text-emerald-400')?.textContent.toLowerCase() || '';
+                if (title.includes(term) || model.includes(term)) {
+                    card.style.display = '';
+                    visible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            document.getElementById('no-products').classList.toggle('hidden', visible > 0 || term === '');
+        }
+
+        function switchView(view) {
+            currentView = view;
+            const buyTab = document.getElementById('view-buy');
+            const instTab = document.getElementById('view-installment');
+            const titleEl = document.getElementById('products-title');
+
+            if (view === 'buy') {
+                buyTab.classList.add('active', 'bg-emerald-500', 'text-white');
+                buyTab.classList.remove('text-zinc-400');
+                instTab.classList.remove('active', 'bg-emerald-500', 'text-white');
+                instTab.classList.add('text-zinc-400');
+                titleEl.textContent = 'Our Premium Cameras';
+            } else {
+                instTab.classList.add('active', 'bg-emerald-500', 'text-white');
+                instTab.classList.remove('text-zinc-400');
+                buyTab.classList.remove('active', 'bg-emerald-500', 'text-white');
+                buyTab.classList.add('text-zinc-400');
+                titleEl.textContent = 'Cameras Available on Installment';
+            }
+        }
+
+        async function detectLocation() {
+            const el = document.getElementById('location-text');
+            if (!navigator.geolocation) { el.innerHTML = 'Lahore, Punjab'; currentLocation = 'Lahore, Punjab'; return; }
+            el.innerHTML = 'Detecting...';
+            navigator.geolocation.getCurrentPosition(async pos => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&addressdetails=1`);
+                    const data = await res.json();
+                    const addr = data.address || {};
+                    currentLocation = addr.village || addr.city || addr.county || 'Your Area, Pakistan';
+                    if (addr.state) currentLocation += ', ' + addr.state;
+                    el.innerHTML = currentLocation.length > 20 ? currentLocation.substring(0,18)+'...' : currentLocation;
+                } catch { currentLocation = 'Lahore, Punjab'; el.innerHTML = currentLocation; }
+            }, () => { currentLocation = 'Lahore, Punjab'; el.innerHTML = currentLocation; });
+        }
+        function refreshLocation() { document.getElementById('location-text').innerHTML = 'Updating...'; detectLocation(); }
+
+        function loadProducts() {
+            const skeleton = document.getElementById('products-skeleton');
+            const grid = document.getElementById('products-grid');
+            const noProducts = document.getElementById('no-products');
+
+            db.ref('products').on('value', snapshot => {
+                grid.innerHTML = '';
+                currentProducts = [];
+
+                skeleton.classList.add('hidden');
+                grid.classList.remove('hidden');
+
+                if (!snapshot.exists()) {
+                    noProducts.classList.remove('hidden');
+                    return;
+                }
+                noProducts.classList.add('hidden');
+
+                snapshot.forEach(child => {
+                    const product = { id: child.key, ...child.val() };
+                    currentProducts.push(product);
+
+                    const card = createProductCard(product);
+                    grid.appendChild(card);
+                    setTimeout(() => addTiltEffect(card), 50);
+                });
+            });
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = `camera-card premium-card tilt-card cursor-pointer group`;
+
+            const discount = product.discount || 0;
+            const hasDiscount = discount > 0;
+            const finalPrice = hasDiscount ? Math.round(product.price * (1 - discount/100)) : product.price;
+            const mainImage = (product.images && product.images.length > 0) ? product.images[0] : 'https://picsum.photos/id/1015/600/400';
+
+            let badges = '';
+            if (hasDiscount) badges += `<div class="absolute top-3 right-3 bg-red-500 text-white text-[10px] px-2.5 py-px rounded font-bold">-${discount}%</div>`;
+            badges += `<div class="absolute top-3 left-3 bg-black/70 text-emerald-300 text-[10px] px-2.5 py-px rounded flex items-center gap-x-1"><i class="fa-solid fa-shield-halved text-xs"></i> ${product.warranty || '1 Year'}</div>`;
+
+            const imgClickHandler = `event.stopImmediatePropagation(); openImageGallery('${product.id}')`;
+
+            card.innerHTML = `
+                <div class="relative">
+                    <img src="${mainImage}" onclick="${imgClickHandler}" class="product-image w-full cursor-pointer" alt="${product.title}">
+                    ${badges}
+                    <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <div class="font-semibold text-lg leading-none tracking-tight">${product.title}</div>
+                                <div class="text-emerald-400 text-xs mt-0.5">${product.model || ''}</div>
+                            </div>
+                            <div class="text-right">
+                                ${hasDiscount ? `<div class="text-xs line-through text-zinc-400">PKR ${product.price}</div>` : ''}
+                                <div class="font-display text-xl font-semibold text-white">PKR ${finalPrice}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 pt-3 pb-4 bg-zinc-900 flex items-center justify-between">
+                    <div class="flex items-center text-xs">
+                        <div class="flex -space-x-1 mr-2">
+                            ${(product.images || []).slice(0,3).map((img,i) => `<img src="${img}" class="w-5 h-5 rounded-full ring-1 ring-zinc-800 object-cover">`).join('')}
+                        </div>
+                        <span class="text-zinc-400 text-xs">${(product.images||[]).length} photos • <span class="text-emerald-400 cursor-pointer" onclick="${imgClickHandler}">View all</span></span>
+                    </div>
+                    <button onclick="event.stopImmediatePropagation(); openBuyModal('${product.id}')" class="px-5 py-1.5 text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-2xl flex items-center gap-x-1.5">
+                        <span>BUY NOW</span>
+                    </button>
+                </div>
+            `;
+            card.onclick = () => openBuyModal(product.id);
+            return card;
+        }
+
+        function addTiltEffect(card) {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                card.style.transform = `perspective(900px) rotateX(${(50-y)/8}deg) rotateY(${(x-50)/8}deg) scale(1.015)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1)';
+                card.style.transform = `perspective(900px) rotateX(0) rotateY(0) scale(1)`;
+            });
+        }
+
+        function openImageGallery(productId) {
+            const product = currentProducts.find(p => p.id === productId);
+            if (!product || !product.images || product.images.length === 0) return;
+
+            currentGalleryImages = product.images;
+            currentZoomLevel = 1;
+
+            const modal = document.getElementById('gallery-modal');
+            const mainImg = document.getElementById('gallery-main-image');
+            const thumbsContainer = document.getElementById('gallery-thumbnails');
+
+            mainImg.src = currentGalleryImages[0];
+            mainImg.style.transform = 'scale(1)';
+            thumbsContainer.innerHTML = '';
+
+            currentGalleryImages.forEach((url, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = `flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 ${index === 0 ? 'border-emerald-400' : 'border-zinc-700'} cursor-pointer`;
+                thumb.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+                thumb.onclick = () => {
+                    mainImg.src = url;
+                    currentZoomLevel = 1;
+                    mainImg.style.transform = 'scale(1)';
+                    thumbsContainer.querySelectorAll('div').forEach((d,i) => d.style.borderColor = i === index ? '#10b981' : '#3f3f46');
+                };
+                thumbsContainer.appendChild(thumb);
+            });
+
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+        }
+
+        function zoomImage(delta) {
+            const img = document.getElementById('gallery-main-image');
+            currentZoomLevel = Math.max(0.5, Math.min(3, currentZoomLevel + delta));
+            img.style.transform = `scale(${currentZoomLevel})`;
+            img.classList.toggle('zoomed', currentZoomLevel > 1);
+        }
+
+        function resetZoom() {
+            const img = document.getElementById('gallery-main-image');
+            currentZoomLevel = 1;
+            img.style.transform = 'scale(1)';
+            img.classList.remove('zoomed');
+        }
+
+        function closeGalleryModal() {
+            const modal = document.getElementById('gallery-modal');
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
+
+        function openBuyModal(productId) {
+            selectedProduct = currentProducts.find(p => p.id === productId);
+            if (!selectedProduct) return;
+
+            const modal = document.getElementById('buy-modal');
+            const summary = document.getElementById('modal-product-summary');
+            const nameEl = document.getElementById('modal-product-name');
+            const submitText = document.getElementById('submit-btn-text');
+
+            nameEl.textContent = selectedProduct.title;
+
+            const discount = selectedProduct.discount || 0;
+            const finalPrice = discount > 0 ? Math.round(selectedProduct.price * (1 - discount/100)) : selectedProduct.price;
+            const mainImg = selectedProduct.images?.[0] || 'https://picsum.photos/id/1015/600/400';
+
+            summary.innerHTML = `
+                <div class="w-20 h-16 flex-shrink-0 rounded-xl overflow-hidden border border-zinc-700">
+                    <img src="${mainImg}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <div class="font-semibold">${selectedProduct.title}</div>
+                    <div class="text-emerald-400 text-xs">${selectedProduct.model || ''}</div>
+                    <div class="mt-1 flex items-baseline gap-x-2">
+                        ${discount > 0 ? `<span class="line-through text-xs text-zinc-500">PKR ${selectedProduct.price}</span>` : ''}
+                        <span class="font-display text-xl font-semibold">PKR ${finalPrice}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('order-name').value = '';
+            document.getElementById('order-address').value = '';
+            document.getElementById('order-phone').value = '300';
+            document.getElementById('order-qty').value = '1';
+            document.getElementById('order-notes').value = '';
+
+            loadPaymentOptionsInModal();
+            updateModalTotalPrice();
+
+            if (currentView === 'installment' && currentInstallmentPlans.length > 0) {
+                setTimeout(() => selectPaymentOption('plan', 0, currentInstallmentPlans[0]), 80);
+                submitText.textContent = 'CHOOSE INSTALLMENT — SEND TO WHATSAPP';
+            } else {
+                submitText.textContent = 'ORDER COMPLETE';
+            }
+
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+        }
+
+        function closeBuyModal() {
+            const modal = document.getElementById('buy-modal');
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+            selectedProduct = null;
+            window.selectedPlan = null;
+        }
+
+        function changeQty(delta) {
+            const input = document.getElementById('order-qty');
+            input.value = Math.max(1, (parseInt(input.value) || 1) + delta);
+            updateModalTotalPrice();
+        }
+
+        function updateModalTotalPrice() {
+            if (!selectedProduct) return;
+            const qty = parseInt(document.getElementById('order-qty').value) || 1;
+            const unit = selectedProduct.discount > 0 ? Math.round(selectedProduct.price * (1 - selectedProduct.discount/100)) : selectedProduct.price;
+            document.getElementById('modal-total-price').innerHTML = `PKR ${(unit * qty).toLocaleString()}`;
+        }
+
+        function loadPaymentOptionsInModal() {
+            const container = document.getElementById('installment-options');
+            const note = document.getElementById('no-plans-note');
+            container.innerHTML = '';
+            window.selectedPlan = null;
+
+            const full = document.createElement('div');
+            full.className = `cursor-pointer flex items-center justify-between bg-emerald-900/20 border border-emerald-700/60 px-4 py-3.5 rounded-2xl`;
+            full.innerHTML = `
+                <div class="flex items-center"><i class="fa-solid fa-wallet text-emerald-400 mr-3"></i>
+                <div><div class="font-medium text-sm">Full Payment (Cash / Transfer)</div><div class="text-emerald-400 text-xs">Recommended</div></div></div>
+                <i class="fa-solid fa-check-circle text-emerald-400 text-xl" id="full-check"></i>`;
+            full.onclick = () => selectPaymentOption('full');
+            container.appendChild(full);
+
+            if (currentInstallmentPlans.length > 0) {
+                note.classList.add('hidden');
+                currentInstallmentPlans.forEach((plan, i) => {
+                    const el = document.createElement('div');
+                    el.className = `cursor-pointer flex items-center justify-between bg-zinc-950 border border-zinc-700 px-4 py-3.5 rounded-2xl`;
+                    el.innerHTML = `
+                        <div class="flex items-center"><i class="fa-solid fa-calendar-alt text-amber-400 mr-3"></i>
+                        <div><div class="font-medium text-sm">${plan.name}</div><div class="text-xs text-zinc-400">${plan.months} months • Down PKR ${plan.down_payment} • Monthly PKR ${plan.monthly_payment}</div></div></div>
+                        <i class="fa-solid fa-circle text-zinc-600 text-xl" id="plan-check-${i}"></i>`;
+                    el.onclick = () => selectPaymentOption('plan', i, plan);
+                    container.appendChild(el);
+                });
+            } else {
+                note.classList.remove('hidden');
+            }
+            selectPaymentOption('full');
+        }
+
+        function selectPaymentOption(type, idx = null, plan = null) {
+            selectedPaymentOption = type;
+            document.querySelectorAll('[id^="full-check"],[id^="plan-check"]').forEach(el => el.classList.replace('fa-check-circle','fa-circle') || el.classList.replace('text-emerald-400','text-zinc-600'));
+            
+            if (type === 'full') {
+                document.getElementById('full-check').classList.replace('fa-circle','fa-check-circle');
+                document.getElementById('full-check').classList.replace('text-zinc-600','text-emerald-400');
+                window.selectedPlan = null;
+            } else if (idx !== null) {
+                const chk = document.getElementById(`plan-check-${idx}`);
+                chk.classList.replace('fa-circle','fa-check-circle');
+                chk.classList.replace('text-zinc-600','text-emerald-400');
+                window.selectedPlan = plan;
+            }
+        }
+
+        function submitOrder() {
+            if (!selectedProduct) return;
+
+            const name = document.getElementById('order-name').value.trim();
+            const address = document.getElementById('order-address').value.trim();
+            const phone = document.getElementById('order-phone').value.trim();
+            const qty = parseInt(document.getElementById('order-qty').value) || 1;
+            const notes = document.getElementById('order-notes').value.trim();
+
+            if (!name || !address || !phone) { alert('Please fill name, address and phone'); return; }
+
+            const unitPrice = selectedProduct.discount > 0 ? Math.round(selectedProduct.price * (1-selectedProduct.discount/100)) : selectedProduct.price;
+            const total = unitPrice * qty;
+
+            const orderId = `IPG-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
+            let paymentInfo = 'Full Payment';
+            let paymentDetails = '';
+            if (selectedPaymentOption === 'plan' && window.selectedPlan) {
+                paymentInfo = window.selectedPlan.name;
+                paymentDetails = `\nInstallment: ${window.selectedPlan.name} (${window.selectedPlan.months} mo)\nDown: PKR ${window.selectedPlan.down_payment} | Monthly: PKR ${window.selectedPlan.monthly_payment}`;
+            }
+
+            const message = `🛡️ *NEW ORDER - IP GLOBAL*\n\n*Order ID:* ${orderId}\n*Product:* ${selectedProduct.title}\n*Model:* ${selectedProduct.model}\n*Qty:* ${qty}\n*Total:* PKR ${total}\n\n*Payment:* ${paymentInfo}${paymentDetails}\n\n*Customer:* ${name}\n*Phone:* +92${phone}\n*Address:* ${address}\n${notes ? '*Notes:* '+notes+'\n' : ''}\n*Location:* ${currentLocation}\n\nPlease confirm. Thank you!`;
+
+            const orderData = {
+                orderId: orderId,
+                productId: selectedProduct.id,
+                productTitle: selectedProduct.title,
+                model: selectedProduct.model,
+                qty, totalPrice: total,
+                paymentOption: paymentInfo,
+                customerName: name,
+                customerPhone: `+92${phone}`,
+                customerAddress: address,
+                notes: notes || '',
+                location: currentLocation,
+                status: 'Pending',
+                expectedDelivery: '',
+                timestamp: new Date().toISOString()
+            };
+
+            db.ref('orders/' + orderId).set(orderData);
+
+            window.open(`https://wa.me/923224918035?text=${encodeURIComponent(message)}`, '_blank');
+            closeBuyModal();
+
+            setTimeout(() => {
+                const t = document.createElement('div');
+                t.className = `fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 border border-emerald-700 text-emerald-300 px-5 py-3 rounded-3xl text-sm flex items-center gap-x-2 z-[300]`;
+                t.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-400"></i><span>Order ${orderId} sent to WhatsApp!</span>`;
+                document.body.appendChild(t);
+                setTimeout(() => { t.style.transition='all .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),200); }, 2800);
+            }, 500);
+        }
+
+        function openTraceModal() {
+            document.getElementById('trace-modal').style.display = 'flex';
+            document.getElementById('trace-result').classList.add('hidden');
+            document.getElementById('trace-order-id').value = '';
+        }
+        function closeTraceModal() {
+            document.getElementById('trace-modal').style.display = 'none';
+        }
+
+        function traceOrder() {
+            const orderId = document.getElementById('trace-order-id').value.trim().toUpperCase();
+            const resultBox = document.getElementById('trace-result');
+            resultBox.innerHTML = `<div class="text-center py-4 text-zinc-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Searching...</div>`;
+            resultBox.classList.remove('hidden');
+
+            db.ref('orders/' + orderId).once('value', snap => {
+                if (!snap.exists()) {
+                    resultBox.innerHTML = `<div class="text-center py-3 text-red-400">Order ID not found. Please check and try again.</div>`;
+                    return;
+                }
+                const o = snap.val();
+                let html = `
+                    <div class="font-semibold mb-1">Order ID: <span class="text-emerald-400">${o.orderId}</span></div>
+                    <div class="text-xs text-zinc-400 mb-3">${new Date(o.timestamp).toLocaleString()}</div>
+                    
+                    <div class="bg-zinc-950 rounded-xl p-3 mb-3">
+                        <div class="text-sm font-medium">${o.productTitle}</div>
+                        <div class="text-xs text-emerald-400">${o.model} × ${o.qty}</div>
+                        <div class="text-lg font-semibold mt-1">PKR ${o.totalPrice}</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-xs text-zinc-400">CURRENT STATUS</div>
+                        <div class="inline-block px-4 py-1 mt-1 rounded-2xl text-sm font-medium 
+                            ${o.status === 'Pending' ? 'bg-yellow-900/60 text-yellow-300' : ''}
+                            ${o.status === 'Dispatch' ? 'bg-blue-900/60 text-blue-300' : ''}
+                            ${o.status === 'On the Way' ? 'bg-purple-900/60 text-purple-300' : ''}
+                            ${o.status === 'Delivered' ? 'bg-emerald-900/60 text-emerald-300' : ''}">
+                            ${o.status || 'Pending'}
+                        </div>
+                    </div>
+                `;
+                if (o.expectedDelivery) {
+                    html += `<div class="text-xs">Expected Delivery: <span class="font-medium">${o.expectedDelivery}</span></div>`;
+                }
+                html += `<div class="mt-3 text-xs text-zinc-400">We will update you via WhatsApp.</div>`;
+                resultBox.innerHTML = html;
+            });
+        }
+
+        function loadPromos() {
+            const container = document.getElementById('promo-scroll-container');
+            db.ref('promos').on('value', snap => {
+                container.innerHTML = '';
+                if (!snap.exists()) return;
+                snap.forEach(child => {
+                    const p = {id: child.key, ...child.val()};
+                    const el = document.createElement('div');
+                    el.className = `flex-shrink-0 w-72 bg-zinc-900 border border-zinc-700 rounded-3xl overflow-hidden cursor-pointer`;
+                    el.innerHTML = `
+                        <div class="relative h-28"><img src="${p.image_url}" class="w-full h-full object-cover"><div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80"></div></div>
+                        <div class="p-3"><div class="font-semibold text-sm">${p.title}</div></div>
+                    `;
+                    el.onclick = () => {
+                        const big = document.createElement('div');
+                        big.className = `fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4`;
+                        big.innerHTML = `
+                            <div class="max-w-[420px] w-full">
+                                <div class="flex justify-end mb-2"><button class="text-white text-3xl">&times;</button></div>
+                                <img src="${p.image_url}" class="w-full rounded-3xl border border-zinc-700">
+                                <div class="text-center mt-4 text-lg font-medium">${p.title}</div>
+                            </div>
+                        `;
+                        big.onclick = () => big.remove();
+                        document.body.appendChild(big);
+                    };
+                    container.appendChild(el);
+                });
+            });
+        }
+
+        function loadInstallmentPlans() {
+            db.ref('installment_plans').on('value', snap => {
+                currentInstallmentPlans = [];
+                if (!snap.exists()) return;
+                snap.forEach(c => currentInstallmentPlans.push({id: c.key, ...c.val()}));
+            });
+        }
+
+        function checkAndShowAnnouncement() {
+            db.ref('popup').once('value', snap => {
+                if (!snap.exists() || !snap.val().active || sessionStorage.getItem('announcement_shown')) return;
+                const data = snap.val();
+                const modal = document.getElementById('announcement-modal');
+                document.getElementById('announcement-image').src = data.image_url || '';
+                document.getElementById('announcement-title').textContent = data.title || '';
+                document.getElementById('announcement-desc').textContent = data.description || '';
+                modal.style.display = 'flex';
+
+                let sec = 10;
+                document.getElementById('timer-seconds').textContent = sec;
+                const timer = setInterval(() => {
+                    sec--; document.getElementById('timer-seconds').textContent = sec;
+                    if (sec <= 0) {
+                        clearInterval(timer);
+                        document.getElementById('announcement-timer').style.display = 'none';
+                        document.getElementById('announcement-close-btn').classList.remove('hidden');
+                    }
+                }, 1000);
+                window.closeAnnouncement = () => { modal.style.display='none'; clearInterval(timer); };
+                sessionStorage.setItem('announcement_shown', 'true');
+            });
+        }
+
+        function initializeApp() {
+            initTailwind();
+            loadProducts();
+            loadPromos();
+            loadInstallmentPlans();
+            setTimeout(detectLocation, 700);
+            setTimeout(checkAndShowAnnouncement, 2100);
+
+            document.getElementById('view-buy').classList.add('active', 'bg-emerald-500', 'text-white');
+
+            document.getElementById('trace-order-id').addEventListener('keypress', e => {
+                if (e.key === 'Enter') traceOrder();
+            });
+
+            console.log('%c[IP GLOBAL] Professional version: Removed status bar, added bottom Trace button + skeleton loading.', 'color:#166534');
+        }
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
